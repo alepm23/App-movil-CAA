@@ -1,0 +1,68 @@
+[versions]
+agp = "8.4.0"  # AGP 8.4.0 es compatible con Gradle 8.6
+kotlin = "1.9.23"
+hilt = "2.51"
+compose-bom = "2024.02.00"  # Actualiza Compose BOM
+compose-compiler = "1.5.12"  # Compilador más nuevo
+gson = "2.10.1"
+coroutines = "1.8.0"
+uiautomator = "2.2.0"
+benchmark-macro-junit4 = "1.2.0-beta01"  # Usa solo esta línea para coroutines
+
+[libraries]
+# AndroidX Core
+androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version = "2.7.0" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.8.2" }
+
+# Coroutines - SOLO UNA VERSIÓN
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+
+# GSON para serialización
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+# Lifecycle Compose
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version = "2.7.0" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version = "2.7.0" }
+
+# Compose
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version = "2.7.6" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version = "1.6.3" }
+
+# Hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
+
+# DataStore
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version = "1.0.0" }
+
+# Coil
+coil-compose = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
+
+# Testing
+junit = { module = "junit:junit", version = "4.13.2" }
+androidx-junit = { module = "androidx.test.ext:junit", version = "1.1.5" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version = "3.5.1" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+
+[bundles]
+# Opcional: bundle para coroutines
+coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android"]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+android-test = { id = "com.android.test", version.ref = "agp" }
