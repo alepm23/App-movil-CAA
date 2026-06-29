@@ -82,4 +82,8 @@ class AudioRepositoryImpl @Inject constructor(
     override fun isMuted(): Boolean {
         return volumeDataSource.isMuted()
     }
+
+    override fun setMaxVolume() {  // 👈 NUEVA IMPLEMENTACIÓN
+        volumeDataSource.setMaxVolume()
+    }
 }

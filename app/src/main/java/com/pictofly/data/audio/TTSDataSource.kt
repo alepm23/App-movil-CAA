@@ -9,8 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Locale
-import javax.inject.Inject  // ✅ IMPORTAR INJECT
-import javax.inject.Singleton  // ✅ OPCIONAL: Si quieres que sea singleton
+import javax.inject.Inject
+import javax.inject.Singleton
 
 interface TTSDataSource {
     fun initialize(context: Context, onInit: ((Boolean) -> Unit)? = null)

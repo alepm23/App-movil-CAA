@@ -156,9 +156,7 @@ class LocalContentRepositoryImpl @Inject constructor(
             val categoryToDelete = currentCategories.find { it.id == categoryId }
 
             if (categoryToDelete != null) {
-                Log.d("Repository", "Iniciando la eliminación de categoría: ${categoryToDelete.name}")
                 val pictogramsToDelete = currentPictograms.filter { it.categoryId == categoryId }
-                Log.d("Repository", "Pictogramas a eliminar: ${pictogramsToDelete.size}")
                 pictogramsToDelete.forEach { pictogram ->
                     deleteLocalImageFile(pictogram.imagePath)
                 }
@@ -167,7 +165,6 @@ class LocalContentRepositoryImpl @Inject constructor(
                 currentCategories.removeAll { it.id == categoryId }
                 saveData(currentCategories, currentPictograms)
 
-                Log.d("Repository", "ategoría '${categoryToDelete.name}' eliminada completamente")
             } else {
                 Log.e("Repository", "No se encontró categoría con ID: $categoryId")
             }

@@ -187,7 +187,6 @@ class CategoryRepositoryImpl @Inject constructor(
                         localFileUri = fileUri
                     )
                 } catch (e: Exception) {
-                    Log.e("CategoryRepo", "Error procesando categoría ${localCat.name}: ${e.message}")
                     null
                 }
             }   //categorias no ocultas
@@ -199,6 +198,46 @@ class CategoryRepositoryImpl @Inject constructor(
             convertedLocalCats + nonHiddenDefaultCategories
         }
     }
+
+    private fun createFileUri(imagePath: String): String {
+        return try {
+            if (imagePath.isEmpty()) {
+                ""
+            } else {
+                val file = if (imagePath.startsWith("/")) {
+                    File(imagePath)
+                } else {
+                    File(context.filesDir, imagePath)
+                }
+
+                if (file.exists()) {
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.fileprovider", //convertimos porq Android NO permite compartir rutas directas
+                        file
+                    )
+                    uri.toString()
+                } else {
+                    val fallbackFile = File(context.filesDir, "local_images/${File(imagePath).name}")
+                    if (fallbackFile.exists()) {
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.fileprovider",
+                            fallbackFile
+                        )
+                        uri.toString()
+                    } else {
+                        Log.e("CategoryRepo", "Archivo no encontrado: $imagePath")
+                        ""
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("CategoryRepo", "Error creando URI para archivo: ${e.message}")
+            ""
+        }
+    }
+
 
     override fun getPictogramsByCategory(categoryName: String): Flow<List<Pictogram>> {
         return combine(
@@ -295,7 +334,8 @@ class CategoryRepositoryImpl @Inject constructor(
             sortedPictograms
         }
     }
-//formato q puede usar la app
+
+    //formato q puede usar la app
     private fun createPictogramFromLocal(localPictogram: LocalPictogram): Pictogram {
         val fileUri = createFileUri(localPictogram.imagePath)
 
@@ -308,45 +348,6 @@ class CategoryRepositoryImpl @Inject constructor(
             isVisible = true,
             createdByUser = true
         )
-    }
-
-    private fun createFileUri(imagePath: String): String {
-        return try {
-            if (imagePath.isEmpty()) {
-                ""
-            } else {
-                val file = if (imagePath.startsWith("/")) {
-                    File(imagePath)
-                } else {
-                    File(context.filesDir, imagePath)
-                }
-
-                if (file.exists()) {
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.fileprovider", //convertimos porq Android NO permite compartir rutas directas
-                        file
-                    )
-                    uri.toString()
-                } else {
-                    val fallbackFile = File(context.filesDir, "local_images/${File(imagePath).name}")
-                    if (fallbackFile.exists()) {
-                        val uri = FileProvider.getUriForFile(
-                            context,
-                            "${context.packageName}.fileprovider",
-                            fallbackFile
-                        )
-                        uri.toString()
-                    } else {
-                        Log.e("CategoryRepo", "Archivo no encontrado: $imagePath")
-                        ""
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("CategoryRepo", "Error creando URI para archivo: ${e.message}")
-            ""
-        }
     }
 
     override fun getCategoryByName(name: String): Flow<Category?> {

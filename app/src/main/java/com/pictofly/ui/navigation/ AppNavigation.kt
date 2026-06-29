@@ -1,4 +1,3 @@
-// app/src/main/java/com/pictofly/ui/navigation/AppNavigation.kt
 package com.pictofly.ui.navigation
 
 import androidx.compose.foundation.layout.*
@@ -34,9 +33,9 @@ import kotlinx.coroutines.delay
 fun AppNavigation(navController: NavHostController) {
     val context = LocalContext.current
     val appViewModel: AppViewModel = hiltViewModel()
-    val coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope() //permitira guardar llamar
 
-    val uiState by appViewModel.uiState.collectAsState()
+    val uiState by appViewModel.uiState.collectAsState() //flow entoces serian datos reactivos
 
     NavHost(
         navController = navController,
@@ -44,7 +43,6 @@ fun AppNavigation(navController: NavHostController) {
         else if (uiState.isConfigured) NavigationRoutes.MAIN_INTERFACE
         else NavigationRoutes.SOUND_CONFIG
     ) {
-        // ... (el resto del código de navegación se mantiene igual) ...
         composable(NavigationRoutes.SPLASH) {
             SplashScreenPlaceholder(
                 onLoadingComplete = {
@@ -160,10 +158,9 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
-        // En AppNavigation.kt, cuando llamas a MainInterfaceScreen:
         composable(NavigationRoutes.MAIN_INTERFACE) {
             MainInterfaceScreen(
-                navController = navController,  // ✅ PASAR EL NAVCONTROLLER
+                navController = navController,
                 soundHz = if (uiState.soundHz > 0) uiState.soundHz else 440,
                 soundDb = if (uiState.soundDb > 0) uiState.soundDb else 70,
                 isLeftHanded = !uiState.isRightHanded,
@@ -288,7 +285,6 @@ fun AppNavigation(navController: NavHostController) {
 
         composable("${NavigationRoutes.CATEGORY_DETAIL}/{categoryName}") { backStackEntry ->
             val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
-            // TODO: Implementar pantalla de detalle de categoría
         }
 
         composable(NavigationRoutes.MANAGE_CONTENT) {
@@ -318,9 +314,6 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
-        // ========== RUTAS DE MODO DE COMUNICACIÓN ==========
-
-        // ✅ PANTALLA PRINCIPAL DE MODO DE COMUNICACIÓN (3 opciones)
         composable(NavigationRoutes.COMMUNICATION_MODE_MENU) {
             CommunicationModeMenuScreen(
                 navController = navController,
@@ -328,7 +321,6 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
-        // ✅ PANTALLA DE PICTOGRAMAS PERSONALIZADOS (ya existente, renombrada)
         composable(NavigationRoutes.COMMUNICATION_CUSTOM_PICTOGRAMS) {
             CommunicationCustomPictogramsScreen(
                 navController = navController,
@@ -336,7 +328,6 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
-        // En AppNavigation.kt, reemplazar las rutas de placeholders
         composable(NavigationRoutes.COMMUNICATION_CHANGE_SUBJECT) {
             CommunicationSubjectScreen(
                 navController = navController,
@@ -350,8 +341,6 @@ fun AppNavigation(navController: NavHostController) {
                 onBack = { navController.navigateUp() }
             )
         }
-        // app/src/main/java/com/pictofly/ui/navigation/AppNavigation.kt
-// AÑADE ESTO DENTRO DEL NavHost { ... }
 
         composable("${NavigationRoutes.CATEGORY_PICTOGRAMS}/{categoryName}") { backStackEntry ->
             val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
@@ -364,8 +353,6 @@ fun AppNavigation(navController: NavHostController) {
     }
     }
 
-
-// Placeholder functions using Material3
 @Composable
 fun SplashScreenPlaceholder(onLoadingComplete: () -> Unit) {
     LaunchedEffect(Unit) {
@@ -374,7 +361,6 @@ fun SplashScreenPlaceholder(onLoadingComplete: () -> Unit) {
     }
 }
 
-// ✅ AGREGAR ESTA FUNCIÓN QUE FALTABA
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunicationPlaceholderScreen(

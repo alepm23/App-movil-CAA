@@ -199,7 +199,6 @@ enum class TremorSeverity {
     SEVERE
 }
 
-
 class SignalProcessor {
 
     companion object {
@@ -440,16 +439,16 @@ fun calculateCalibrationMetrics(
         tremorSeverity == TremorSeverity.SEVERE -> 0.28f
         tremorSeverity == TremorSeverity.MODERATE -> 0.24f
         tremorSeverity == TremorSeverity.MILD -> 0.19f
-        speedP75 < 0.3f -> 0.16f  // Lento
-        speedP75 > 1.5f -> 0.22f  // Rapido
+        speedP75 < 0.3f -> 0.16f
+        speedP75 > 1.5f -> 0.22f
         else -> 0.15f
     }.coerceIn(0.12f, 0.3f)
 
     val rangeEfficiency = ((xRange + yRange) / 2f).coerceIn(0.3f, 1.2f)
 
     val sensitivity = when {
-        speedP50 < 0.4f -> 1.4f  // Lento
-        speedP50 > 1.8f -> 0.75f // Rapido
+        speedP50 < 0.4f -> 1.4f
+        speedP50 > 1.8f -> 0.75f
         else -> 1.0f
     } * (1.2f / rangeEfficiency)
 
@@ -497,6 +496,19 @@ fun JoystickTestScreen(
     savedProfile: UserCalibrationProfile? = null
 ) {
     val context = LocalContext.current
+    val prefs = context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+    val savedLeftHanded = prefs.getBoolean("is_left_handed", false)
+
+    // Usar la preferencia guardada si existe, sino usar el parámetro
+    val finalLeftHanded = if (savedLeftHanded) savedLeftHanded else isLeftHanded
+
+    // Guardar inmediatamente si se pasó isLeftHanded como true
+    LaunchedEffect(isLeftHanded) {
+        if (isLeftHanded) {
+            prefs.edit().putBoolean("is_left_handed", true).apply()
+        }
+    }
+
     val state = rememberJoystickCalibrationState(
         userId = userId,
         savedProfile = savedProfile
@@ -620,6 +632,7 @@ fun JoystickTestScreen(
         }
     }
 
+    // UI
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -631,6 +644,7 @@ fun JoystickTestScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Header
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -669,7 +683,7 @@ fun JoystickTestScreen(
                             color = DarkGreen
                         )
                         Text(
-                            text = if (isLeftHanded) "Mano zurda" else "Mano diestra",
+                            text = if (finalLeftHanded) "Mano zurda" else "Mano diestra",
                             fontSize = 12.sp,
                             color = DarkGreen.copy(alpha = 0.7f)
                         )
@@ -687,6 +701,8 @@ fun JoystickTestScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Instrucción
             InstructionCard(
                 currentStep = state.currentStep,
                 calibrationSteps = state.calibrationSteps,
@@ -696,6 +712,7 @@ fun JoystickTestScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Visualizador
             MovementVisualizerCard(
                 currentJoystickPosition = if (state.filterConfig.smoothingFactor > 0)
                     state.smoothedPosition else state.normalizedPosition,
@@ -710,6 +727,8 @@ fun JoystickTestScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Hold progress
             if (state.currentStep in 1..4) {
                 HoldProgressIndicator(
                     holdTimer = state.holdTimer,
@@ -723,6 +742,7 @@ fun JoystickTestScreen(
             if (!state.calibrationCompleted) {
                 ControlArea(
                     testStarted = state.testStarted,
+                    isLeftHanded = finalLeftHanded,
                     onStartTest = {
                         state.testStarted = true
                         state.currentStep = 1
@@ -751,7 +771,9 @@ fun JoystickTestScreen(
                     onRepeat = { resetCalibration() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    prefs = prefs,
+                    finalLeftHanded = finalLeftHanded
                 )
             }
 
@@ -936,7 +958,6 @@ private fun completeCalibration(state: JoystickCalibrationState) {
         normalizedRange = state.normalizedRange
     )
 }
-
 
 @Composable
 private fun HoldTimerEffect(state: JoystickCalibrationState) {
@@ -1322,7 +1343,7 @@ private fun HoldProgressIndicator(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isComplete) "¡PERFECTO!"
+                    text = if (isComplete) "¡PERFECTO! ✅"
                     else "MANTEN PRESIONADO: ${holdTimer/1000}s",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -1374,6 +1395,7 @@ private fun HoldProgressIndicator(
 @Composable
 private fun ControlArea(
     testStarted: Boolean,
+    isLeftHanded: Boolean,
     onStartTest: () -> Unit,
     onReset: () -> Unit,
     onJoystickMove: (Offset) -> Unit,
@@ -1383,7 +1405,7 @@ private fun ControlArea(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -1392,49 +1414,52 @@ private fun ControlArea(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (!testStarted) {
-                        Button(
-                            onClick = onStartTest,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = SuccessGreen,
-                                contentColor = White
-                            ),
-                            modifier = Modifier.width(150.dp)
-                        ) {
-                            Text("COMENZAR", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                    } else {
-                        Button(
-                            onClick = onReset,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = WarningOrange,
-                                contentColor = White
-                            ),
-                            modifier = Modifier.width(150.dp)
-                        ) {
-                            Text("REINICIAR", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    DraggableJoystickButton(
-                        buttonSize = 120.dp,
-                        onMove = onJoystickMove,
-                        onRelease = onJoystickRelease,
-                        modifier = Modifier
-                    )
+                if (isLeftHanded) {
+                    JoystickElement(onJoystickMove, onJoystickRelease)
+                    ActionButton(testStarted, onStartTest, onReset)
+                } else {
+                    ActionButton(testStarted, onStartTest, onReset)
+                    JoystickElement(onJoystickMove, onJoystickRelease)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ActionButton(testStarted: Boolean, onStartTest: () -> Unit, onReset: () -> Unit) {
+    if (!testStarted) {
+        Button(
+            onClick = onStartTest,
+            colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen, contentColor = Color.White),
+            modifier = Modifier.width(150.dp)
+        ){
+            Text("COMENZAR", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        }
+    } else {
+        Button(
+            onClick = onReset,
+            colors = ButtonDefaults.buttonColors(containerColor = WarningOrange, contentColor = Color.White),
+            modifier = Modifier.width(150.dp)
+        ){
+            Text("REINICIAR", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun JoystickElement(onJoystickMove: (Offset) -> Unit, onJoystickRelease: () -> Unit) {
+    DraggableJoystickButton(
+        buttonSize = 120.dp,
+        onMove = onJoystickMove,
+        onRelease = onJoystickRelease,
+        modifier = Modifier
+    )
 }
 
 @Composable
@@ -1443,7 +1468,9 @@ private fun CalibrationResults(
     userProfile: UserCalibrationProfile,
     onComplete: () -> Unit,
     onRepeat: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    prefs: android.content.SharedPreferences,
+    finalLeftHanded: Boolean
 ) {
     val appViewModel: AppViewModel = hiltViewModel()
 
@@ -1482,6 +1509,9 @@ private fun CalibrationResults(
             ) {
                 Button(
                     onClick = {
+                        // Guardar la preferencia de lateralidad
+                        prefs.edit().putBoolean("is_left_handed", finalLeftHanded).apply()
+
                         val calibrationProfile = CalibrationProfile(
                             userId = userProfile.userId,
                             lastCalibrationDate = System.currentTimeMillis(),
@@ -1573,7 +1603,7 @@ private fun EnhancedCalibrationMetrics(
                     .padding(12.dp)
             ) {
                 Text(
-                    text = "📐 RANGO ADAPTADO",
+                    text = "RANGO ADAPTADO",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkGreen

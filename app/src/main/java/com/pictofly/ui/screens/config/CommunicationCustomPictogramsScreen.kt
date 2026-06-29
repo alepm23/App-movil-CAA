@@ -214,12 +214,11 @@ private fun EmptyState(onAddClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // ✅ BOTÓN CORREGIDO - Ahora dice "Añadir"
         Button(
             onClick = onAddClick,
             modifier = Modifier
                 .wrapContentWidth()
-                .align(Alignment.CenterHorizontally) // ✅ CENTRADO
+                .align(Alignment.CenterHorizontally)
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = GreenBright,
@@ -229,7 +228,7 @@ private fun EmptyState(onAddClick: () -> Unit) {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center, // ✅ CENTRADO
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.wrapContentWidth()
             ) {
                 Icon(
@@ -240,7 +239,7 @@ private fun EmptyState(onAddClick: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Añadir", // ✅ CAMBIADO DE "Crear primer pictograma"
+                    text = "Añadir",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = White
@@ -320,7 +319,6 @@ private fun AddPictogramDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // CHIP SUJETO - CENTRADO
                         FilterChip(
                             selected = selectedType == "subject",
                             onClick = { onTypeChange("subject") },
@@ -352,7 +350,6 @@ private fun AddPictogramDialog(
                             modifier = Modifier.weight(1f)
                         )
 
-                        // CHIP VERBO - CENTRADO
                         FilterChip(
                             selected = selectedType == "verb",
                             onClick = { onTypeChange("verb") },
@@ -482,7 +479,6 @@ private fun AddPictogramDialog(
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Botón Cancelar
                 TextButton(
                     onClick = onDismiss,
                     colors = ButtonDefaults.textButtonColors(
@@ -497,7 +493,6 @@ private fun AddPictogramDialog(
                     )
                 }
 
-                // Botón Guardar
                 Button(
                     onClick = onSave,
                     enabled = isSaveEnabled,

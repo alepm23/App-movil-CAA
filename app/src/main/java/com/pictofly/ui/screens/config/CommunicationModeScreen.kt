@@ -1,4 +1,3 @@
-// CommunicationModeScreen.kt - VERSIÓN CORREGIDA
 package com.pictofly.ui.screens.config
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,7 +42,7 @@ fun CommunicationModeScreen(
 ) {
     val viewModel: LocalContentViewModel = hiltViewModel()
 
-    // ✅ CORRECCIÓN: Usar communicationModeState en lugar de localPictograms
+
     val communicationState by viewModel.communicationModeState.collectAsStateWithLifecycle()
     val operationState by viewModel.operationState.collectAsStateWithLifecycle()
 
@@ -96,9 +95,9 @@ fun CommunicationModeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // ✅ Usar pictograms del communicationState
+
             if (communicationState.isLoading) {
-                // Estado de carga
+
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -118,12 +117,11 @@ fun CommunicationModeScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // ✅ Usar communicationState.pictograms
+
                     items(communicationState.pictograms) { pictogram ->
                         PictogramGalleryItem(
                             pictogram = pictogram,
                             onDelete = {
-                                // ✅ Llamar al método del ViewModel
                                 viewModel.showDeletePictogramDialog(pictogram)
                             }
                         )
@@ -131,7 +129,6 @@ fun CommunicationModeScreen(
                 }
             }
 
-            // ✅ Diálogo para agregar pictograma (controlado por ViewModel)
             if (communicationState.showAddDialog) {
                 AddPictogramDialog(
                     pictogramName = communicationState.pictogramName,
@@ -141,7 +138,6 @@ fun CommunicationModeScreen(
                     onClearImage = { viewModel.updatePictogramImageUri(null) },
                     onDismiss = { viewModel.hideAddPictogramDialog() },
                     onSave = {
-                        // ✅ Llamar al método del ViewModel
                         viewModel.saveCommunicationPictogram(context)
                     },
                     isSaveEnabled = communicationState.pictogramName.isNotBlank() &&
@@ -149,7 +145,6 @@ fun CommunicationModeScreen(
                 )
             }
 
-            // ✅ Diálogo de confirmación para eliminar
             if (communicationState.showDeleteDialog) {
                 AlertDialog(
                     onDismissRequest = { viewModel.hideDeletePictogramDialog() },
@@ -174,13 +169,11 @@ fun CommunicationModeScreen(
                 )
             }
 
-            // Mostrar estado de operación
             when (operationState) {
                 is com.pictofly.viewmodel.OperationState.Loading -> {
                     LoadingOverlay((operationState as com.pictofly.viewmodel.OperationState.Loading).message)
                 }
                 is com.pictofly.viewmodel.OperationState.Error -> {
-                    // Mostrar error temporal
                     LaunchedEffect(operationState) {
                         kotlinx.coroutines.delay(3000)
                         viewModel.resetOperationState()
@@ -228,7 +221,6 @@ private fun EmptyState(onAddClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ✅ BOTÓN CORREGIDO - Centrado y con texto "Añadir"
         Button(
             onClick = onAddClick,
             modifier = Modifier
@@ -242,7 +234,7 @@ private fun EmptyState(onAddClick: () -> Unit) {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center, // ✅ CENTRADO
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
@@ -252,7 +244,7 @@ private fun EmptyState(onAddClick: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Añadir", // ✅ SOLO "AÑADIR"
+                    text = "Añadir",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -290,7 +282,6 @@ private fun PictogramGalleryItem(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // Si no existe el archivo, mostrar placeholder
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -306,7 +297,6 @@ private fun PictogramGalleryItem(
                 }
             }
 
-            // Overlay con nombre y menú
             Box(
                 modifier = Modifier
                     .fillMaxSize()

@@ -1,4 +1,3 @@
-// app/src/main/java/com/pictofly/ui/screens/config/CommunicationSelectorScreen.kt
 package com.pictofly.ui.screens.config
 
 import androidx.compose.foundation.background
@@ -41,13 +40,11 @@ import java.io.File
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.CircleShape
 
-// 📌 TIPO DE SELECCIÓN
 enum class SelectorType {
     SUBJECT,
     VERB
 }
 
-// 📌 CONFIGURACIÓN POR TIPO
 data class SelectorConfig(
     val type: SelectorType,
     val title: String,
@@ -57,7 +54,7 @@ data class SelectorConfig(
     val selectText: String,
     val confirmText: String,
     val defaultIcon: ImageVector,
-    val filterType: String  // "subject" o "verb"
+    val filterType: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +64,6 @@ fun CommunicationSelectorScreen(
     selectorType: SelectorType,
     onBack: () -> Unit
 ) {
-    // 📌 CONFIGURACIÓN SEGÚN EL TIPO
     val config = when (selectorType) {
         SelectorType.SUBJECT -> SelectorConfig(
             type = SelectorType.SUBJECT,
@@ -98,7 +94,6 @@ fun CommunicationSelectorScreen(
     val communicationViewModel: CommunicationViewModel = hiltViewModel()
     val operationState by localViewModel.operationState.collectAsStateWithLifecycle()
 
-    // 📌 SELECCIÓN ACTUAL SEGÚN EL TIPO
     val selectedItem = when (selectorType) {
         SelectorType.SUBJECT -> communicationViewModel.selectedSubject.collectAsStateWithLifecycle().value
         SelectorType.VERB -> communicationViewModel.selectedVerb.collectAsStateWithLifecycle().value
@@ -108,7 +103,6 @@ fun CommunicationSelectorScreen(
         mutableStateOf<LocalPictogram?>(selectedItem)
     }
 
-    // 📌 FILTRAR PICTOGRAMAS POR TIPO
     val filteredPictograms = state.pictograms.filter { it.type == config.filterType }
     val context = LocalContext.current
 
@@ -159,7 +153,7 @@ fun CommunicationSelectorScreen(
                 .background(LightGreenBg)
                 .padding(paddingValues)
         ) {
-            // 📌 BANNER SUPERIOR - ÍTEM SELECCIONADO
+
             SelectedItemBanner(
                 selectedItem = temporarySelectedItem ?: selectedItem,
                 defaultIcon = config.defaultIcon,
@@ -179,7 +173,6 @@ fun CommunicationSelectorScreen(
                     "SELECCIONA UN ${config.filterType.uppercase()}"
             )
 
-            // 📌 LISTA DE ÍTEMS
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -239,7 +232,6 @@ fun CommunicationSelectorScreen(
                 }
             }
 
-            // 📌 DIÁLOGOS Y ESTADOS
             if (state.showDeleteDialog) {
                 DeletePictogramDialog(
                     onDismiss = { localViewModel.hideDeletePictogramDialog() },
@@ -269,7 +261,6 @@ fun CommunicationSelectorScreen(
     }
 }
 
-// 📌 COMPONENTE: Banner del ítem seleccionado
 @Composable
 private fun SelectedItemBanner(
     selectedItem: LocalPictogram?,
@@ -395,7 +386,6 @@ private fun SelectedItemBanner(
     }
 }
 
-// 📌 COMPONENTE: Tarjeta de ítem en grid
 @Composable
 private fun SelectorItemCard(
     pictogram: LocalPictogram,
@@ -512,7 +502,6 @@ private fun SelectorItemCard(
     }
 }
 
-// 📌 COMPONENTE: Estado vacío
 @Composable
 private fun EmptySelectorState(
     config: SelectorConfig,
@@ -584,7 +573,6 @@ private fun EmptySelectorState(
     }
 }
 
-// 📌 COMPONENTE: Diálogo de eliminar
 @Composable
 private fun DeletePictogramDialog(
     onDismiss: () -> Unit,
@@ -642,7 +630,6 @@ private fun DeletePictogramDialog(
     )
 }
 
-// 📌 COMPONENTE: Loading Overlay
 @Composable
 private fun LoadingOverlay(message: String) {
     Box(

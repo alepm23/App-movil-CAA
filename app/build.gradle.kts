@@ -12,9 +12,9 @@ android {
     defaultConfig {
         applicationId = "com.pictofly" //ide play dis
         minSdk = 24 // 7
-        targetSdk = 34 //14
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35 //14
+        versionCode = 2
+        versionName = "2.0"
         testInstrumentationRunner = "com.pictofly.CustomTestRunner"
 
         vectorDrawables {

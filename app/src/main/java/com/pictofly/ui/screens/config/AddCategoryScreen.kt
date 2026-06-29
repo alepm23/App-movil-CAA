@@ -568,7 +568,7 @@ fun AddCategoryScreen(
                                 Icon(
                                     Icons.Default.CheckCircle,
                                     contentDescription = "Éxito",
-                                    tint = SuccessGreen  // ✅ Usando SuccessGreen
+                                    tint = SuccessGreen
                                 )
                                 Text(
                                     text = state.message,

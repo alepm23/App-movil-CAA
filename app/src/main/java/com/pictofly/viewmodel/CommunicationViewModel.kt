@@ -29,6 +29,7 @@ class CommunicationViewModel @Inject constructor(
     private val _communicationScreenState = MutableStateFlow(CommunicationScreenState())
     val communicationScreenState: StateFlow<CommunicationScreenState> = _communicationScreenState.asStateFlow()
 
+    // Manejo de Sujeto con versión para forzar recomposición
     private val _selectedSubject = MutableStateFlow<Pair<LocalPictogram?, Int>>(null to 0)
     val selectedSubject: StateFlow<LocalPictogram?> = _selectedSubject
         .map { it.first }
@@ -46,6 +47,7 @@ class CommunicationViewModel @Inject constructor(
             initialValue = 0
         )
 
+    // Manejo de Verbo con versión
     private val _selectedVerb = MutableStateFlow<Pair<LocalPictogram?, Int>>(null to 0)
     val selectedVerb: StateFlow<LocalPictogram?> = _selectedVerb
         .map { it.first }
@@ -62,6 +64,9 @@ class CommunicationViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = 0
         )
+
+    private val _selectedPredicate = MutableStateFlow<LocalPictogram?>(null)
+    val selectedPredicate: StateFlow<LocalPictogram?> = _selectedPredicate.asStateFlow()
 
     private var subjectVersionValue = 0
     private var verbVersionValue = 0
@@ -104,60 +109,24 @@ class CommunicationViewModel @Inject constructor(
                 )
                 repository.addCategory(newCategory)
             }
-
             loadCommunicationPictograms()
         } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private suspend fun validateSelections() {
-        val pictograms = _communicationScreenState.value.pictograms
-        val currentSubject = _selectedSubject.value.first
-        val currentVerb = _selectedVerb.value.first
-
-        var changed = false
-
-        if (currentSubject != null) {
-            val stillExists = pictograms.any { it.id == currentSubject.id && it.type == "subject" }
-            if (!stillExists) {
-                subjectVersionValue++
-                _selectedSubject.value = null to subjectVersionValue
-                settingsRepository.saveSelectedSubjectId(null)
-                settingsRepository.saveSelectedSubjectName(null)
-                changed = true
-            }
-        }
-
-        if (currentVerb != null) {
-            val stillExists = pictograms.any { it.id == currentVerb.id && it.type == "verb" }
-            if (!stillExists) {
-                verbVersionValue++
-                _selectedVerb.value = null to verbVersionValue
-                settingsRepository.saveSelectedVerbId(null)
-                settingsRepository.saveSelectedVerbName(null)
-                changed = true
-            }
-        }
-
-        if (changed) {
+            Log.e("CommunicationVM", "Error inicializando categoría", e)
         }
     }
 
     fun loadCommunicationPictograms() {
         viewModelScope.launch {
             try {
-                if (communicationCategoryId != null) {
-                    repository.getPictogramsByCategoryId(communicationCategoryId!!).collect { pictograms ->
+                communicationCategoryId?.let { id ->
+                    repository.getPictogramsByCategoryId(id).collect { pictograms ->
                         _communicationScreenState.update { state ->
                             state.copy(pictograms = pictograms, isLoading = false)
                         }
                         restoreSelectionsFromPreferences()
-                        validateSelections()
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
                 _communicationScreenState.update { it.copy(isLoading = false) }
             }
         }
@@ -168,95 +137,118 @@ class CommunicationViewModel @Inject constructor(
         val verbId = settingsRepository.getSelectedVerbId()
         val pictograms = _communicationScreenState.value.pictograms
 
-        var changed = false
-
         if (subjectId != null) {
-            val subject = pictograms.find { it.id == subjectId && it.type == "subject" }
-            if (subject != null) {
+            pictograms.find { it.id == subjectId && it.type == "subject" }?.let {
                 subjectVersionValue++
-                _selectedSubject.value = subject to subjectVersionValue
-                settingsRepository.saveSelectedSubjectName(subject.name)
-                changed = true
+                _selectedSubject.value = it to subjectVersionValue
             }
         }
 
         if (verbId != null) {
-            val verb = pictograms.find { it.id == verbId && it.type == "verb" }
-            if (verb != null) {
+            pictograms.find { it.id == verbId && it.type == "verb" }?.let {
                 verbVersionValue++
-                _selectedVerb.value = verb to verbVersionValue
-                settingsRepository.saveSelectedVerbName(verb.name)
-                changed = true
+                _selectedVerb.value = it to verbVersionValue
             }
-        }
-
-        if (changed) {
-            delay(100)
-            forceUiRefresh()
         }
     }
 
-    fun selectSubject(pictogram: LocalPictogram) {
+    private suspend fun validateSelections() {
+        val pictograms = _communicationScreenState.value.pictograms
+        val currentSubject = _selectedSubject.value.first
+        val currentVerb = _selectedVerb.value.first
+
+        if (currentSubject != null && pictograms.none { it.id == currentSubject.id }) {
+            selectSubject(null)
+        }
+        if (currentVerb != null && pictograms.none { it.id == currentVerb.id }) {
+            selectVerb(null)
+        }
+    }
+
+    // --- FUNCIONES DE SELECCIÓN CORREGIDAS ---
+
+    fun selectSubject(pictogram: LocalPictogram?) {
         viewModelScope.launch {
             subjectVersionValue++
             _selectedSubject.value = pictogram to subjectVersionValue
-            settingsRepository.saveSelectedSubjectId(pictogram.id)
-            settingsRepository.saveSelectedSubjectName(pictogram.name)
+
+            // Persistir para que el motor gramatical lo vea
+            settingsRepository.saveSelectedSubjectId(pictogram?.id)
+            settingsRepository.saveSelectedSubjectName(pictogram?.name)
         }
     }
 
-    fun selectVerb(pictogram: LocalPictogram) {
+    fun selectVerb(pictogram: LocalPictogram?) {
         viewModelScope.launch {
             verbVersionValue++
             _selectedVerb.value = pictogram to verbVersionValue
-            settingsRepository.saveSelectedVerbId(pictogram.id)
-            settingsRepository.saveSelectedVerbName(pictogram.name)
+
+            // Persistir para que el motor gramatical lo vea
+            settingsRepository.saveSelectedVerbId(pictogram?.id)
+            settingsRepository.saveSelectedVerbName(pictogram?.name)
         }
     }
 
-    fun forceRefreshSelectedSubject() {
-        val current = _selectedSubject.value.first
-        if (current != null) {
+    // En CommunicationViewModel.kt
+    fun selectPredicate(pictogram: LocalPictogram?) {
+        _selectedPredicate.value = pictogram
+    }
+
+    // En CommunicationViewModel.kt - Reemplaza la función clearSelections() existente
+
+    fun clearSelections() {
+        viewModelScope.launch {
+            // Actualizar versiones para forzar recomposición
             subjectVersionValue++
-            _selectedSubject.value = current to subjectVersionValue
-        }
-    }
-
-    fun forceRefreshSelectedVerb() {
-        val current = _selectedVerb.value.first
-        if (current != null) {
             verbVersionValue++
-            _selectedVerb.value = current to verbVersionValue
+
+            // Limpiar directamente los MutableStateFlow
+            _selectedSubject.value = null to subjectVersionValue
+            _selectedVerb.value = null to verbVersionValue
+            _selectedPredicate.value = null
+
+            // Limpiar preferencias
+            settingsRepository.saveSelectedSubjectId(null)
+            settingsRepository.saveSelectedVerbId(null)
+            settingsRepository.saveSelectedSubjectName(null)
+            settingsRepository.saveSelectedVerbName(null)
+
+            Log.d("CommunicationVM", "✅ Pizarra limpiada: Sujeto=null, Verbo=null, Predicado=null")
         }
     }
 
+    fun clearPredicate() {
+        _selectedPredicate.value = null
+    }
+    fun clearSubject() {      // 👈 AGREGA ESTO
+        viewModelScope.launch {
+            subjectVersionValue++
+            _selectedSubject.value = null to subjectVersionValue
+            settingsRepository.saveSelectedSubjectId(null)
+            settingsRepository.saveSelectedSubjectName(null)
+            Log.d("CommunicationVM", "Sujeto limpiado")
+        }
+    }
+
+    fun clearVerb() {         // 👈 AGREGA ESTO
+        viewModelScope.launch {
+            verbVersionValue++
+            _selectedVerb.value = null to verbVersionValue
+            settingsRepository.saveSelectedVerbId(null)
+            settingsRepository.saveSelectedVerbName(null)
+            Log.d("CommunicationVM", "Verbo limpiado")
+        }
+    }
     fun forceUiRefresh() {
         viewModelScope.launch {
-            val currentSubject = _selectedSubject.value.first
-            val currentVerb = _selectedVerb.value.first
-
-            if (currentSubject != null) {
-                subjectVersionValue++
-                _selectedSubject.value = currentSubject to subjectVersionValue
-            }
-
-            if (currentVerb != null) {
-                verbVersionValue++
-                _selectedVerb.value = currentVerb to verbVersionValue
-            }
+            subjectVersionValue++
+            verbVersionValue++
+            _selectedSubject.value = _selectedSubject.value.first to subjectVersionValue
+            _selectedVerb.value = _selectedVerb.value.first to verbVersionValue
         }
     }
 
     fun getSelectedSubject(): LocalPictogram? = _selectedSubject.value.first
     fun getSelectedVerb(): LocalPictogram? = _selectedVerb.value.first
-
-    fun clearSelections() {
-        viewModelScope.launch {
-            subjectVersionValue++
-            verbVersionValue++
-            _selectedSubject.value = null to subjectVersionValue
-            _selectedVerb.value = null to verbVersionValue
-            settingsRepository.clearSessionData()
-        }
-    }
+    fun getSelectedPredicate(): LocalPictogram? = _selectedPredicate.value
 }

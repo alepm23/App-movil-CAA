@@ -33,6 +33,13 @@ class MainViewModel @Inject constructor(
     private var lastMoveTime: Long = 0L
     private var lastSpokenCategoryIndex: Int = -1
 
+    // Referencia al CommunicationViewModel (se inyectará después)
+    private var communicationViewModel: CommunicationViewModel? = null
+
+    fun setCommunicationViewModel(viewModel: CommunicationViewModel) {
+        communicationViewModel = viewModel
+    }
+
     init {
         loadCategories()
         loadCalibrationProfile()
@@ -85,7 +92,7 @@ class MainViewModel @Inject constructor(
     private fun speakInstructions() {
         Log.d("MainViewModel", "Reproduciendo instrucciones")
         audioRepository.speak(
-            text = "Pantalla principal. Navega entre categorías con izquierda y derecha. Click en centro para seleccionar categoría.",
+            text = "Pantalla principal. Navega entre categorías con izquierda y derecha. Click en centro para seleccionar categoría. Mueve el joystick hacia abajo para limpiar la frase completa.",
             queueMode = TextToSpeech.QUEUE_FLUSH,
             utteranceId = "main_screen_instructions"
         )
@@ -106,11 +113,33 @@ class MainViewModel @Inject constructor(
 
         if (currentTime - lastMoveTime > minTimeBetweenMoves) {
             when {
-                movement.x > 0.3f -> moveRight()
-                movement.x < -0.3f -> moveLeft()
+                movement.x > 0.3f -> moveRight()      // DERECHA
+                movement.x < -0.3f -> moveLeft()      // IZQUIERDA
+                movement.y < -0.4f -> handleMoveUp()  // ARRIBA
+                movement.y > 0.4f -> handleMoveDown() // ABAJO ← CORREGIDO
             }
             lastMoveTime = currentTime
         }
+    }
+
+    private fun handleMoveUp() {
+        Log.d("MainViewModel", "Movimiento ARRIBA")
+        // Aquí puedes poner la acción que quieras para arriba
+        audioRepository.speak(
+            text = "Movimiento hacia arriba",
+            queueMode = TextToSpeech.QUEUE_FLUSH,
+            utteranceId = "move_up"
+        )
+    }
+
+    private fun handleMoveDown() {
+        Log.d("MainViewModel", "Movimiento ABAJO - LIMPIANDO")
+        communicationViewModel?.clearSelections()
+        audioRepository.speak(
+            text = "Borrado",
+            queueMode = TextToSpeech.QUEUE_FLUSH,
+            utteranceId = "clear_phrase"
+        )
     }
 
     private fun moveRight() {
@@ -133,6 +162,15 @@ class MainViewModel @Inject constructor(
         }
         speakCurrentCategory()
     }
+
+    fun updateSelectedCategoryIndex(index: Int) {
+        _uiState.update { it.copy(selectedCategoryIndex = index) }
+        // Opcional: hablar el nombre de la categoría al seleccionarla con el dedo
+        speakCurrentCategory()
+    }
+
+
+
 
     private fun speakCurrentCategory() {
         val currentState = _uiState.value
@@ -178,7 +216,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             delay(300)
             audioRepository.speak(
-                text = "Pantalla principal. Navega entre categorías con izquierda y derecha.",
+                text = "Pantalla principal. Navega entre categorías con izquierda y derecha. Mueve el joystick hacia abajo para limpiar la frase.",
                 queueMode = TextToSpeech.QUEUE_FLUSH,
                 utteranceId = "back_to_main"
             )

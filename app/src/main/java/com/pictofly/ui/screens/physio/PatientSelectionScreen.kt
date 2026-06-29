@@ -78,7 +78,6 @@ fun PatientSelectionScreen(
                 ) {
                     Spacer(modifier = Modifier.height(if (showBackButton) 16.dp else 32.dp))
 
-                    // TÍTULO CENTRADO
                     if (!showBackButton) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -104,7 +103,6 @@ fun PatientSelectionScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // SECCIÓN 1: MANO DOMINANTE
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -131,7 +129,7 @@ fun PatientSelectionScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                // BOTÓN DIESTRO
+
                                 Button(
                                     onClick = { isRightHanded = true },
                                     colors = ButtonDefaults.buttonColors(
@@ -151,7 +149,6 @@ fun PatientSelectionScreen(
                                     )
                                 }
 
-                                // BOTÓN ZURDO
                                 Button(
                                     onClick = { isRightHanded = false },
                                     colors = ButtonDefaults.buttonColors(
@@ -172,7 +169,6 @@ fun PatientSelectionScreen(
                                 }
                             }
 
-                            // INDICADOR DE SELECCIÓN
                             if (isRightHanded != null) {
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Card(
@@ -200,7 +196,6 @@ fun PatientSelectionScreen(
                         }
                     }
 
-                    // SECCIÓN 2: MOVIMIENTO DEL PULGAR
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -268,7 +263,6 @@ fun PatientSelectionScreen(
                                 }
                             }
 
-                            // INDICADOR DE SELECCIÓN
                             if (hasFullThumbMovement != null) {
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Card(
@@ -280,8 +274,8 @@ fun PatientSelectionScreen(
                                 ) {
                                     Text(
                                         text = if (hasFullThumbMovement == true)
-                                            "✓ Movimiento completo seleccionado"
-                                        else "✓ Movimiento parcial seleccionado",
+                                            "Movimiento completo seleccionado"
+                                        else "Movimiento parcial seleccionado",
                                         style = MaterialTheme.typography.bodyMedium.copy(
                                             color = MaterialTheme.colorScheme.secondary,
                                             fontWeight = FontWeight.Bold
@@ -321,8 +315,8 @@ fun PatientSelectionScreen(
                                         pressedElevation = 0.dp,
                                         disabledElevation = 0.dp
                                     ),
-                                    shape = RoundedCornerShape(12.dp),  // 🔥 MISMA FORMA QUE CONTINUAR
-                                    border = null  // 🔥 SIN BORDE
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = null
                                 ) {
                                     Text(
                                         text = "CANCELAR",
@@ -357,7 +351,7 @@ fun PatientSelectionScreen(
                                     disabledElevation = 0.dp
                                 ),
                                 shape = RoundedCornerShape(12.dp),
-                                border = null  // 🔥 SIN BORDE
+                                border = null
                             ) {
                                 Text(
                                     text = "CONTINUAR",

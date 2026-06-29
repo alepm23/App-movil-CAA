@@ -1,4 +1,3 @@
-// app/src/main/java/com/pictofly/ui/components/CommunicationPictogramItem.kt
 package com.pictofly.ui.components
 
 import androidx.compose.foundation.background
@@ -28,7 +27,7 @@ fun CommunicationPictogramItem(
     pictogram: LocalPictogram,
     isSelected: Boolean = false,
     onDelete: () -> Unit,
-    onSelect: (() -> Unit)? = null  // ✅ NULLABLE con valor por defecto
+    onSelect: (() -> Unit)? = null
 ) {
     var showMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -51,7 +50,7 @@ fun CommunicationPictogramItem(
             ),
         shape = RoundedCornerShape(12.dp),
         onClick = {
-            onSelect?.invoke()  // ✅ SOLO ejecuta si no es null
+            onSelect?.invoke()
         }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

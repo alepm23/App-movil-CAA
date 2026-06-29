@@ -25,8 +25,8 @@ sealed class LogoutState {
 
 @HiltViewModel
 class LogoutViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,  // Fixed: Context, not Int
-    private val userSettingsRepository: UserSettingsRepository,  // Fixed: proper type
+    @ApplicationContext private val context: Context,
+    private val userSettingsRepository: UserSettingsRepository,
     private val cleanupRepository: CleanupRepository,
     private val calibrationRepository: CalibrationRepository
 ) : ViewModel() {
@@ -40,7 +40,7 @@ class LogoutViewModel @Inject constructor(
                 _logoutState.value = LogoutState.Loading
                 calibrationRepository.clearCalibrationProfile()
                 cleanupRepository.cleanAllUserData()
-                userSettingsRepository.clearAllData()  // Now this should work
+                userSettingsRepository.clearAllData()
                 delay(300)
                 _logoutState.value = LogoutState.Success("Sesión cerrada correctamente")
                 onComplete()

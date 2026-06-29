@@ -1,4 +1,3 @@
-// app/src/main/java/com/pictofly/ui/screens/config/CategoryPictogramsScreen.kt
 package com.pictofly.ui.screens.config
 
 import androidx.compose.foundation.layout.*
@@ -41,12 +40,10 @@ fun CategoryPictogramsScreen(
     val operationState by viewModel.operationState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // Cargar pictogramas cuando la pantalla se muestra
     LaunchedEffect(categoryName) {
         viewModel.loadPictogramsForCategory(categoryName)
     }
 
-    // Estado para controlar el diálogo de confirmación
     var showDeleteDialog by remember { mutableStateOf(false) }
     var pictogramToDelete by remember { mutableStateOf<Pictogram?>(null) }
 
@@ -96,7 +93,7 @@ fun CategoryPictogramsScreen(
 
                 else -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
+                        columns = GridCells.Fixed(3), //divide el ancho en 3
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -104,7 +101,7 @@ fun CategoryPictogramsScreen(
                     ) {
                         items(
                             items = uiState.pictograms,
-                            key = { pictogram -> pictogram.name } // Usamos nombre como key
+                            key = { pictogram -> pictogram.name }
                         ) { pictogram ->
                             PictogramCard(
                                 pictogram = pictogram,
@@ -118,7 +115,6 @@ fun CategoryPictogramsScreen(
                 }
             }
 
-            // Snackbar para mostrar resultados de operaciones
             val currentState = operationState
             val snackbarMessage = when {
                 currentState is OperationState.Success -> currentState.message
@@ -152,7 +148,6 @@ fun CategoryPictogramsScreen(
         }
     }
 
-    // Diálogo de confirmación para eliminar
     if (showDeleteDialog && pictogramToDelete != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -242,7 +237,6 @@ fun PictogramCard(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Imagen del pictograma
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(pictogram.getDisplayImageUrl())
@@ -253,7 +247,6 @@ fun PictogramCard(
                     contentScale = ContentScale.Crop
                 )
 
-                // Indicador de pictograma personalizado
                 if (pictogram.isLocal || pictogram.createdByUser) {
                     Surface(
                         modifier = Modifier
@@ -263,15 +256,13 @@ fun PictogramCard(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                     ) {
                         Text(
-                            text = "★",
+                            text = "", //2.0 agregar fav
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White
                         )
                     }
                 }
-
-                // ✅ BOTÓN X PARA ELIMINAR (SIEMPRE VISIBLE)
                 IconButton(
                     onClick = onDeleteClick,
                     modifier = Modifier
@@ -299,7 +290,6 @@ fun PictogramCard(
             }
         }
 
-        // Nombre del pictograma (parte inferior)
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomCenter)

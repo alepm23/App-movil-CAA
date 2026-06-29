@@ -47,7 +47,6 @@ import java.io.File
 import kotlinx.coroutines.delay
 import android.util.Log
 
-// ✅ SAVER PARA URI - IMPRESCINDIBLE
 object UriSaver : Saver<Uri?, String> {
     override fun restore(value: String): Uri? {
         return try {
@@ -66,7 +65,7 @@ object UriSaver : Saver<Uri?, String> {
 @Composable
 fun AddPictogramsScreen(
     navController: NavController,
-    categoryId: String,  // Puede ser un ID numérico o un NOMBRE de categoría
+    categoryId: String,
     onComplete: () -> Unit
 ) {
     val viewModel: LocalContentViewModel = hiltViewModel()
@@ -79,30 +78,24 @@ fun AddPictogramsScreen(
     var isCategoryValid by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // ✅ Guardar URI en rememberSaveable
     var currentImageUri by rememberSaveable(stateSaver = UriSaver) {
         mutableStateOf(addPictogramState.pictogramImageUri)
     }
 
-    // ✅ VERIFICAR QUE LA CATEGORÍA EXISTA ANTES DE INICIAR EL FLUJO
     LaunchedEffect(Unit) {
-        Log.d("AddPictograms", "🚀 Iniciando con categoryId/Name: $categoryId")
-
         if (!addPictogramState.isFlowActive) {
             viewModel.ensureCategoryExists(categoryId) { success, finalCategoryId ->
                 isCategoryValid = success
                 if (success) {
-                    Log.d("AddPictograms", "✅ Categoría válida, ID final: $finalCategoryId")
                     viewModel.startAddPictogramsFlow(finalCategoryId)
                 } else {
-                    Log.e("AddPictograms", "❌ Categoría no válida: $categoryId")
                     errorMessage = "No se pudo acceder a la categoría"
                 }
             }
         }
     }
 
-    // ✅ Sincronizar URI local con ViewModel
+
     LaunchedEffect(currentImageUri) {
         currentImageUri?.let { uri ->
             if (addPictogramState.pictogramImageUri != uri) {
@@ -111,7 +104,6 @@ fun AddPictogramsScreen(
         }
     }
 
-    // ✅ Launcher para seleccionar imagen
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
@@ -122,7 +114,6 @@ fun AddPictogramsScreen(
         }
     )
 
-    // Si hay error, mostrar pantalla de error
     if (errorMessage != null || !isCategoryValid) {
         Box(
             modifier = Modifier
@@ -214,7 +205,6 @@ fun AddPictogramsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // ========== FORMULARIO PARA AGREGAR NUEVO PICTOGRAMA ==========
                 Text(
                     text = "Nuevo Pictograma",
                     style = MaterialTheme.typography.titleLarge,
@@ -224,7 +214,6 @@ fun AddPictogramsScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Nombre del pictograma
                 OutlinedTextField(
                     value = addPictogramState.pictogramName,
                     onValueChange = { viewModel.setPictogramName(it) },
@@ -273,8 +262,6 @@ fun AddPictogramsScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ========== SELECTOR DE TIPO (solo para categorías predeterminadas) ==========
-                // Si es una categoría predeterminada (como Sujeto o Verbo), mostrar selector de tipo
                 if (addPictogramState.categoryId.matches(Regex("\\D+"))) {
                     Column(
                         modifier = Modifier.fillMaxWidth()
@@ -355,7 +342,6 @@ fun AddPictogramsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                // ========== VISTA DE IMAGEN ==========
                 Box(
                     modifier = Modifier
                         .size(180.dp)
@@ -384,7 +370,6 @@ fun AddPictogramsScreen(
                             )
                         }
 
-                        // Botón para quitar imagen
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
@@ -432,7 +417,6 @@ fun AddPictogramsScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Botón para seleccionar imagen
                 Button(
                     onClick = { imagePicker.launch("image/*") },
                     modifier = Modifier
@@ -463,7 +447,6 @@ fun AddPictogramsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ========== BOTONES EN LA MISMA FILA ==========
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -471,7 +454,6 @@ fun AddPictogramsScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // ✅ BOTÓN "AÑADIR"
                     Button(
                         onClick = {
                             viewModel.addCurrentPictogram(context) {
@@ -513,7 +495,6 @@ fun AddPictogramsScreen(
                         }
                     }
 
-                    // ✅ BOTÓN "FINALIZAR" (solo visible si hay pictogramas)
                     if (addPictogramState.addedPictograms.isNotEmpty()) {
                         Button(
                             onClick = {
@@ -554,7 +535,6 @@ fun AddPictogramsScreen(
                     }
                 }
 
-                // Mostrar error de imagen si existe
                 addPictogramState.imageError?.let { error ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -566,11 +546,9 @@ fun AddPictogramsScreen(
                     )
                 }
 
-                // ========== LISTA DE PICTOGRAMAS AGREGADOS ==========
                 if (addPictogramState.addedPictograms.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Título con contador
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -596,7 +574,6 @@ fun AddPictogramsScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Lista de pictogramas
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -612,7 +589,6 @@ fun AddPictogramsScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            // Mostrar estado de operación
             when (val state = operationState) {
                 is OperationState.Loading -> {
                     Box(
@@ -699,7 +675,6 @@ fun PictogramItemCard(pictogram: LocalPictogram) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // MOSTRAR IMAGEN REAL DEL PICTOGRAMA
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -733,8 +708,6 @@ fun PictogramItemCard(pictogram: LocalPictogram) {
                     )
                 }
             }
-
-            // Nombre
             Text(
                 text = pictogram.name,
                 style = MaterialTheme.typography.bodyLarge,
@@ -742,8 +715,6 @@ fun PictogramItemCard(pictogram: LocalPictogram) {
                 color = TextPrimary,
                 modifier = Modifier.weight(1f)
             )
-
-            // Indicador de éxito
             Icon(
                 Icons.Default.CheckCircle,
                 contentDescription = "Agregado",

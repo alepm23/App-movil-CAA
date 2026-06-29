@@ -1,4 +1,3 @@
-// app/src/main/java/com/pictofly/ui/screens/config/ConfigMenuScreen.kt
 package com.pictofly.ui.screens.config
 
 import android.content.Intent
@@ -48,21 +47,18 @@ fun ConfigMenuScreen(
     navController: NavHostController,
     onCloseSession: () -> Unit,
     viewModel: ConfigViewModel = hiltViewModel(),
-    logoutViewModel: LogoutViewModel = hiltViewModel() // ✅ AGREGAR LogoutViewModel
+    logoutViewModel: LogoutViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val logoutState by logoutViewModel.logoutState.collectAsState()
     val context = LocalContext.current
 
-    // Cargar datos de configuración al iniciar
     LaunchedEffect(Unit) {
         viewModel.loadCurrentConfiguration()
     }
 
-    // ✅ Efecto para manejar el cierre de sesión exitoso
     LaunchedEffect(logoutState) {
         if (logoutState is LogoutState.Success) {
-            // Navegar al splash después del logout exitoso
             navController.navigate(NavigationRoutes.SPLASH) {
                 popUpTo(0) { inclusive = true }
             }
@@ -163,7 +159,6 @@ fun ConfigMenuScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // ========== CARD DE CONFIGURACIÓN ACTUAL ==========
                 item {
                     CurrentConfigCard(
                         isLoading = uiState.isLoading,
@@ -173,7 +168,6 @@ fun ConfigMenuScreen(
                     )
                 }
 
-                // ========== OPCIONES DE CONFIGURACIÓN ==========
                 items(configOptions) { option ->
                     ConfigOptionCard(
                         option = option,
@@ -189,13 +183,11 @@ fun ConfigMenuScreen(
                     )
                 }
 
-                // Espacio al final
                 item {
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
 
-            // Dentro de ConfigMenuScreen
             LogoutDialog(
                 showDialog = uiState.showLogoutDialog,
                 onDismiss = { viewModel.hideLogoutDialog() },
@@ -204,7 +196,7 @@ fun ConfigMenuScreen(
                     logoutViewModel.performLogout(onCloseSession)
                 },
                 logoutState = logoutState,
-                logoutViewModel = logoutViewModel  // ✅ PASAR EL VIEWMODEL
+                logoutViewModel = logoutViewModel
             )
         }
     }
@@ -389,13 +381,6 @@ fun ConfigOptionCard(
     }
 }
 
-/**
- * ✅ DIÁLOGO DE CIERRE DE SESIÓN MEJORADO
- * Muestra diferentes estados: confirmación, carga, éxito, error
- */
-/**
- * ✅ DIÁLOGO DE CIERRE DE SESIÓN CORREGIDO
- */
 @Composable
 fun LogoutDialog(
     showDialog: Boolean,
@@ -452,7 +437,7 @@ fun LogoutDialog(
                     }
                     is LogoutState.Success -> {
                         Text(
-                            text = logoutState.message,  // ✅ Success TIENE message
+                            text = logoutState.message,
                             style = MaterialTheme.typography.bodyLarge,
                             color = SuccessGreen,
                             textAlign = TextAlign.Center,
@@ -461,7 +446,7 @@ fun LogoutDialog(
                     }
                     is LogoutState.Error -> {
                         Text(
-                            text = logoutState.message,  // ✅ Error TIENE message
+                            text = logoutState.message,
                             style = MaterialTheme.typography.bodyLarge,
                             color = ErrorRed,
                             textAlign = TextAlign.Center,
@@ -483,7 +468,6 @@ fun LogoutDialog(
             confirmButton = {
                 when (logoutState) {
                     is LogoutState.Loading -> {
-                        // No mostrar botones durante carga
                     }
                     is LogoutState.Success -> {
                         Button(
@@ -583,4 +567,3 @@ fun openYouTubeTutorials(context: Context) {
     )
     context.startActivity(intent)
 }
-

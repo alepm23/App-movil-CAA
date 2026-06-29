@@ -50,6 +50,10 @@ fun DraggableJoystickButton(
     var isDragging by remember { mutableStateOf(false) }
     var smoothedPosition by remember { mutableStateOf(Offset.Zero) }
 
+    // Control para evitar eventos duplicados
+    var lastEmittedDirection by remember { mutableStateOf(0) } // 0=centro, 1=derecha, -1=izquierda
+    var lastEmittedPosition by remember { mutableStateOf(Offset.Zero) }
+
     val finalDeadZone = (baseDeadZone + dynamicDeadZone).coerceIn(0.1f, 0.35f)
     val finalSensitivity = (baseSensitivity * dynamicSensitivity).coerceIn(0.6f, 1.5f)
     val finalSmoothing = (baseSmoothing + dynamicSmoothing).coerceIn(0.15f, 0.55f)
@@ -65,6 +69,34 @@ fun DraggableJoystickButton(
                 x = cos(angle).toFloat() * scale,
                 y = sin(angle).toFloat() * scale
             )
+        }
+    }
+
+    // 🔥 FUNCIÓN PARA EMITIR SOLO CUANDO CAMBIA LA DIRECCIÓN
+    fun emitIfDirectionChanged(position: Offset) {
+        val threshold = 0.3f // Umbral para detectar cambio de dirección
+
+        val currentDirection = when {
+            position.x > threshold -> 1  // Derecha
+            position.x < -threshold -> -1 // Izquierda
+            else -> 0 // Centro
+        }
+
+        // Si la dirección cambió O es la primera vez, emitimos
+        if (currentDirection != lastEmittedDirection) {
+            lastEmittedDirection = currentDirection
+            lastEmittedPosition = position
+            onMove(position)
+        } else {
+            // Si es la misma dirección, solo emitimos si la posición cambió significativamente
+            val distance = sqrt(
+                (position.x - lastEmittedPosition.x).pow(2) +
+                        (position.y - lastEmittedPosition.y).pow(2)
+            )
+            if (distance > 0.2f) {
+                lastEmittedPosition = position
+                onMove(position)
+            }
         }
     }
 
@@ -101,7 +133,7 @@ fun DraggableJoystickButton(
                             )
                         }
 
-                        onMove(smoothedPosition)
+                        emitIfDirectionChanged(smoothedPosition)
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
@@ -125,12 +157,14 @@ fun DraggableJoystickButton(
                             y = smoothedPosition.y + (adjustedPosition.y - smoothedPosition.y) * finalSmoothing
                         )
 
-                        onMove(smoothedPosition)
+                        emitIfDirectionChanged(smoothedPosition)
                     },
                     onDragEnd = {
                         isDragging = false
                         joystickPosition = Offset.Zero
                         smoothedPosition = Offset.Zero
+                        lastEmittedDirection = 0
+                        lastEmittedPosition = Offset.Zero
                         onMove(Offset.Zero)
                         onRelease()
                     }
@@ -218,7 +252,6 @@ fun DraggableJoystickButton(
         }
 
         if (enabled) {
-
             Text(
                 text = "^",
                 color = Color.White,

@@ -218,7 +218,7 @@ fun SoundInputScreen(
                                 enabled = (uiState.dbValue.toIntOrNull() ?: 0) > 1 && !uiState.isTestingSound
                             ) {
                                 Text(
-                                    text = "-",
+                                    text = "-5",
                                     fontSize = 28.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White

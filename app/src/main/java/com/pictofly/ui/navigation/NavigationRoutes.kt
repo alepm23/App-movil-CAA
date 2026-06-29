@@ -1,4 +1,3 @@
-// app/src/main/java/com/pictofly/ui/navigation/NavigationRoutes.kt
 package com.pictofly.ui.navigation
 
 object NavigationRoutes {
@@ -18,14 +17,11 @@ object NavigationRoutes {
     const val PICTOGRAM_SIZE = "pictogram_size"
     const val MANAGE_CONTENT = "manage_content"
     const val ADD_CATEGORY = "add_category"
-    const val ADD_PICTOGRAM = "add_pictogram"  // For single pictogram?
+    const val ADD_PICTOGRAM = "add_pictogram"
     const val ADD_PICTOGRAMS = "add_pictograms"
-
-    // ✅ AGREGADO: Ruta para gestión de pictogramas por categoría
     const val CATEGORY_PICTOGRAMS = "category_pictograms"
-    // ✅ RUTAS PARA MODO DE COMUNICACIÓN
-    const val COMMUNICATION_MODE_MENU = "communication_mode_menu"  // Pantalla de 3 opciones
-    const val COMMUNICATION_CUSTOM_PICTOGRAMS = "communication/custom_pictograms"  // Pantalla existente (renombrada)
+    const val COMMUNICATION_MODE_MENU = "communication_mode_menu"
+    const val COMMUNICATION_CUSTOM_PICTOGRAMS = "communication/custom_pictograms"
     const val COMMUNICATION_CHANGE_SUBJECT = "communication/change_subject"
     const val COMMUNICATION_CHANGE_VERB = "communication/change_verb"
 }

@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
         Log.d("MainActivity", "App destruida")
         volumeButtonsLocked = false
     }
-
+    //presiono
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
@@ -77,10 +77,10 @@ class MainActivity : ComponentActivity() {
                     super.onKeyDown(keyCode, event)
                 }
             }
-            else -> super.onKeyDown(keyCode, event)
+            else -> super.onKeyDown(keyCode, event) //para cualquier otro boton
         }
     }
-
+    //soltamos
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
         return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {

@@ -44,11 +44,8 @@ fun ManageLocalContentScreen(
     val localContentViewModel: LocalContentViewModel = hiltViewModel()
     val operationState by localContentViewModel.operationState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-
-    // ESTADO LOCAL PARA FORZAR RECOMPOSICIÓN
     var refreshTrigger by remember { mutableStateOf(0) }
 
-    // EFECTO PARA RECARGAR CUANDO HAY OPERACIONES EXITOSAS
     LaunchedEffect(operationState, refreshTrigger) {
         val currentState = operationState
         when {
@@ -155,7 +152,6 @@ fun ManageLocalContentScreen(
                 }
             }
 
-            // SNACKBAR DE OPERACIÓN
             val currentState = operationState
             val snackbarMessage = when {
                 currentState is OperationState.Success -> currentState.message
@@ -205,12 +201,9 @@ fun CategoryItemCard(
     var showErrorSnackbar by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isProcessing by remember { mutableStateOf(false) }
-
-    // ESTADO LOCAL PARA EL ESTADO OCULTO
     var isHidden by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    // CARGAR ESTADO INICIAL Y CUANDO CAMBIA
     LaunchedEffect(key1 = category.name) {
         if (!category.isLocal) {
             isHidden = localContentViewModel.isCategoryHidden(category.name)
@@ -234,7 +227,6 @@ fun CategoryItemCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // IMAGEN
             AsyncImage(
                 model = category.imageUrl?.let {
                     ImageRequest.Builder(context).data(it).build()
@@ -248,7 +240,6 @@ fun CategoryItemCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // TEXTO
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = category.name,
@@ -291,10 +282,7 @@ fun CategoryItemCard(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false }
                 ) {
-                    // ✅ AGREGAR PICTOGRAMAS - VERSIÓN CORREGIDA PARA CATEGORÍAS PREDETERMINADAS
                     if (!isHidden) {
-
-                        // ✅ AGREGAR PICTOGRAMAS - VERSIÓN CORREGIDA PARA CATEGORÍAS PREDETERMINADAS
                         if (!isHidden) {
                             DropdownMenuItem(
                                 onClick = {
@@ -304,28 +292,18 @@ fun CategoryItemCard(
                                     coroutineScope.launch {
                                         try {
                                             if (category.isLocal) {
-                                                // 🟢 CATEGORÍA LOCAL - Buscar ID
-                                                Log.d("Navigation", "🔍 Buscando categoría local: ${category.name}")
-
                                                 val categoryId = localContentViewModel.findLocalCategoryIdSync(category)
 
                                                 if (categoryId != null && categoryId.isNotEmpty()) {
-                                                    Log.d("Navigation", "✅ Categoría local encontrada con ID: $categoryId")
-                                                    navController.navigate("${NavigationRoutes.ADD_PICTOGRAMS}/$categoryId")
+                                                     navController.navigate("${NavigationRoutes.ADD_PICTOGRAMS}/$categoryId")
                                                 } else {
                                                     errorMessage = "Error: No se pudo encontrar la categoría '${category.name}'"
                                                     showErrorSnackbar = true
                                                 }
                                             } else {
-                                                // 🟡 CATEGORÍA PREDETERMINADA - PASAR EL NOMBRE DIRECTAMENTE
-                                                Log.d("Navigation", "🔍 Navegando a AddPictogramsScreen con nombre de categoría: ${category.name}")
-
-                                                // ✅ IMPORTANTE: Pasar el NOMBRE de la categoría, no intentar crear ID
-                                                // El ViewModel se encargará de crear/obtener la extensión
                                                 navController.navigate("${NavigationRoutes.ADD_PICTOGRAMS}/${category.name}")
                                             }
                                         } catch (e: Exception) {
-                                            Log.e("Navigation", "❌ Error en navegación: ${e.message}")
                                             errorMessage = "Error: ${e.message}"
                                             showErrorSnackbar = true
                                         } finally {
@@ -351,7 +329,6 @@ fun CategoryItemCard(
                         }
                     }
 
-                    // ✅ VER PICTOGRAMAS
                     if (!isHidden) {
                         DropdownMenuItem(
                             onClick = {
@@ -375,7 +352,6 @@ fun CategoryItemCard(
                         )
                     }
 
-                    // RESTAURAR CATEGORÍA (si está oculta)
                     if (!category.isLocal && isHidden) {
                         DropdownMenuItem(
                             onClick = {
@@ -440,7 +416,6 @@ fun CategoryItemCard(
         }
     }
 
-    // Snackbar para errores
     if (showErrorSnackbar) {
         Snackbar(
             modifier = Modifier.padding(16.dp),
@@ -456,9 +431,6 @@ fun CategoryItemCard(
         }
     }
 
-    // ========== DIÁLOGOS ==========
-
-    // DIÁLOGO ELIMINAR CATEGORÍA LOCAL
     if (showDeleteCategoryDialog && category.isLocal) {
         AlertDialog(
             onDismissRequest = { showDeleteCategoryDialog = false },
@@ -506,7 +478,6 @@ fun CategoryItemCard(
         )
     }
 
-    // DIÁLOGO OCULTAR CATEGORÍA PREDETERMINADA
     if (showHideCategoryDialog && !category.isLocal && !isHidden) {
         AlertDialog(
             onDismissRequest = { showHideCategoryDialog = false },

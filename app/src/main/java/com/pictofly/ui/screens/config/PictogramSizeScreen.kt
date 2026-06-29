@@ -99,7 +99,6 @@ fun PictogramSizeScreen(
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
 
-                        // Contenedor del pictograma con tamaño dinámico
                         Box(
                             modifier = Modifier
                                 .size(currentSize.carouselSize.dp)
@@ -109,7 +108,6 @@ fun PictogramSizeScreen(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            // ✅ KEY PARA FORZAR RECOMPOSICIÓN DE LA IMAGEN
                             key(currentSize.carouselSize) {
                                 AsyncImage(
                                     model = "https://res.cloudinary.com/dvxwkfujl/image/upload/v1758655338/manzana_wsccfj.png",
@@ -137,8 +135,6 @@ fun PictogramSizeScreen(
                     }
                 }
             }
-
-            // Opciones de tamaño
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -153,8 +149,6 @@ fun PictogramSizeScreen(
                     )
                 }
             }
-
-            // Espacio al final
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

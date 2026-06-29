@@ -91,11 +91,23 @@ class SoundViewModel @Inject constructor(
             )
         }
 
-        audioRepository.adjustAndLockVolume(currentDb)
-        audioRepository.setVolumeFromDb(currentDb)
-        audioRepository.speak("Hola", android.speech.tts.TextToSpeech.QUEUE_FLUSH, "test_sound")
-
         viewModelScope.launch {
+            // 👈 FORZAR VOLUMEN AL MÁXIMO DEL SISTEMA
+            audioRepository.setMaxVolume()
+            delay(100)
+
+            // Aplicar ajuste de dB
+            audioRepository.adjustAndLockVolume(currentDb)
+            audioRepository.setVolumeFromDb(currentDb)
+            delay(100)
+
+            // Reproducir sonido de prueba
+            audioRepository.speak(
+                "Hola, este es el volumen de prueba a $currentDb decibeles",
+                android.speech.tts.TextToSpeech.QUEUE_FLUSH,
+                "test_sound"
+            )
+
             delay(2000)
             _uiState.update {
                 it.copy(
@@ -109,6 +121,7 @@ class SoundViewModel @Inject constructor(
     fun saveSoundConfiguration(hz: Int, db: Int, onComplete: () -> Unit) {
         val minDb = 1
         if (db >= minDb) {
+            audioRepository.setMaxVolume()  // Forzar máximo
             audioRepository.adjustAndLockVolume(db)
             audioRepository.setVolumeFromDb(db)
             audioRepository.speak(

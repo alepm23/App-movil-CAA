@@ -18,4 +18,5 @@ interface AudioRepository {
     fun adjustAndLockVolume(dbValue: Int)
     fun getCurrentVolumeInDb(): Int
     fun isMuted(): Boolean
+    fun setMaxVolume()  // 👈 NUEVO MÉTODO
 }

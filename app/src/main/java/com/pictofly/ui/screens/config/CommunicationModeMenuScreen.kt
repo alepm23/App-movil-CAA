@@ -26,7 +26,7 @@ fun CommunicationModeMenuScreen(
     onBack: () -> Unit
 ) {
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background, // LightGreenBg
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -34,7 +34,7 @@ fun CommunicationModeMenuScreen(
                         text = "Modo de Comunicación",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.secondary // DarkGreen
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 },
                 navigationIcon = {
@@ -42,7 +42,7 @@ fun CommunicationModeMenuScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
-                            tint = MaterialTheme.colorScheme.secondary // DarkGreen (cambiado de IconGreen)
+                            tint = MaterialTheme.colorScheme.secondary
                         )
                     }
                 },
@@ -50,7 +50,7 @@ fun CommunicationModeMenuScreen(
                     containerColor = MaterialTheme.colorScheme.surface, // White
                     scrolledContainerColor = MaterialTheme.colorScheme.surface, // White
                     titleContentColor = MaterialTheme.colorScheme.secondary, // DarkGreen
-                    navigationIconContentColor = MaterialTheme.colorScheme.secondary // DarkGreen (cambiado de IconGreen)
+                    navigationIconContentColor = MaterialTheme.colorScheme.secondary
                 )
             )
         }
@@ -81,7 +81,7 @@ fun CommunicationModeMenuScreen(
                 title = "Cambiar sujeto",
                 description = "Personaliza quién es el sujeto de las frases",
                 icon = Icons.Default.Person,
-                titleStyle = MaterialTheme.typography.titleMedium.copy(color = Color.Black), // ✅ FORZADO A NEGRO
+                titleStyle = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
                 onClick = {
                     navController.navigate("communication/change_subject")
                 }
@@ -107,7 +107,6 @@ fun CommunicationModeMenuScreen(
                     containerColor = MaterialTheme.colorScheme.surface // White
                 )
             ) {
-                // Contenido del card
             }
         }
     }
@@ -153,7 +152,6 @@ fun CommunicationOptionCard(
                 )
             }
 
-            // Texto - AHORA SÍ EN NEGRO
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -161,7 +159,7 @@ fun CommunicationOptionCard(
                     text = title,
                     style = titleStyle,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black // ✅ CAMBIADO DE secondary A BLACK
+                    color = Color.Black
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -169,15 +167,13 @@ fun CommunicationOptionCard(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black.copy(alpha = 0.6f) // ✅ TAMBIÉN CAMBIADO A NEGRO
+                    color = Color.Black.copy(alpha = 0.6f)
                 )
             }
-
-            // Flecha
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Ir",
-                tint = MaterialTheme.colorScheme.secondary, // DarkGreen
+                tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(20.dp)
             )
         }
